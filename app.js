@@ -1,116 +1,94 @@
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import {
-    getAuth,
-    signInWithEmailAndPassword,
-    onAuthStateChanged,
-    signOut
-  } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-  import {
-    getDatabase,
-    ref,
-    set,
-    onValue
-  } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import {
+  getDatabase,
+  ref,
+  set,
+  onValue,
+  get
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-  // Your web app's Firebase configuration
+// 🔐 Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyCswT15l41hEQv79qyBKKUVPfQPCVOiTZk",
   authDomain: "home-automation-esp32-e3790.firebaseapp.com",
   databaseURL: "https://home-automation-esp32-e3790-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "home-automation-esp32-e3790",
-  storageBucket: "home-automation-esp32-e3790.firebasestorage.app",
-  messagingSenderId: "209833223452",
   appId: "1:209833223452:web:53badf29c0a1dc8818c6d9"
 };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth();
-  const db = getDatabase(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getDatabase(app);
 
-  // UI elements
-  const authBox = document.getElementById("authBox");
-  const controlBox = document.getElementById("controlBox");
-  const loginBtn = document.getElementById("loginBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
-  const authMsg = document.getElementById("authMsg");
-  const badge = document.getElementById("statusBadge");
+// UI
+const authBox = document.getElementById("authBox");
+const controlBox = document.getElementById("controlBox");
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const authMsg = document.getElementById("authMsg");
+const badge = document.getElementById("statusBadge");
 
-  const gpioButtons = {
-    gpio1: document.getElementById("gpio1Btn"),
-    gpio2: document.getElementById("gpio2Btn"),
-    gpio3: document.getElementById("gpio3Btn")
-  };
+const gpioList = ["gpio1","gpio2","gpio3","gpio4","gpio5","gpio6","gpio7","gpio8"];
+const devicePath = "devices/esp32_1";
 
-  const gpioLabels = {
-    gpio1: document.getElementById("gpio1Status"),
-    gpio2: document.getElementById("gpio2Status"),
-    gpio3: document.getElementById("gpio3Status")
-  };
+// LOGIN
+loginBtn.onclick = async () => {
+  authMsg.textContent = "";
+  try {
+    await signInWithEmailAndPassword(
+      auth,
+      emailField.value,
+      passwordField.value
+    );
+  } catch (e) {
+    authMsg.textContent = e.message;
+  }
+};
 
-  // Login
-  loginBtn.onclick = async () => {
-    authMsg.textContent = "";
-    try {
-      await signInWithEmailAndPassword(
-        auth,
-        document.getElementById("emailField").value,
-        document.getElementById("passwordField").value
-      );
-    } catch (e) {
-      authMsg.textContent = e.message;
-    }
-  };
+logoutBtn.onclick = () => signOut(auth);
 
-  logoutBtn.onclick = () => signOut(auth);
+// AUTH STATE
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    authBox.style.display = "none";
+    controlBox.style.display = "block";
+    badge.textContent = "Online";
+    badge.className = "status-badge online";
+    startListeners();
+  } else {
+    authBox.style.display = "block";
+    controlBox.style.display = "none";
+    badge.textContent = "Offline";
+    badge.className = "status-badge offline";
+  }
+});
 
-  // Auth state monitor
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      authBox.style.display = "none";
-      controlBox.style.display = "block";
-      badge.className = "status-badge online";
-      badge.textContent = "Online";
-      startListeners();
-    } else {
-      authBox.style.display = "block";
-      controlBox.style.display = "none";
-      badge.className = "status-badge offline";
-      badge.textContent = "Offline";
-    }
+// GPIO LISTENERS
+function startListeners() {
+
+  gpioList.forEach((gpio) => {
+    const btn = document.querySelector(`[data-gpio="${gpio}"]`);
+
+    onValue(ref(db, `${devicePath}/${gpio}`), (snap) => {
+      snap.val() === 1 ? btn.classList.add("on") : btn.classList.remove("on");
+    });
+
+    btn.onclick = async () => {
+      const modeSnap = await get(ref(db, `${devicePath}/${gpio}_mode`));
+      const mode = modeSnap.exists() ? modeSnap.val() : "toggle";
+
+      if (mode === "toggle") {
+        const current = btn.classList.contains("on") ? 1 : 0;
+        set(ref(db, `${devicePath}/${gpio}`), current ? 0 : 1);
+      } else {
+        set(ref(db, `${devicePath}/${gpio}`), 1); // momentary
+      }
+    };
   });
-
-  // Listen to DB
-  function startListeners() {
-    ["gpio1", "gpio2", "gpio3"].forEach((key) => {
-      onValue(ref(db, "/" + key), (snapshot) => {
-        let value = snapshot.val() ? 1 : 0;
-        updateUI(key, value);
-      });
-    });
-
-    // Button click
-    Object.values(gpioButtons).forEach((btn) => {
-      btn.onclick = () => {
-        let gpio = btn.dataset.gpio;
-        let newState = btn.classList.contains("on") ? 0 : 1;
-        set(ref(db, "/" + gpio), newState);
-      };
-    });
-  }
-
-  // Update UI
-  function updateUI(key, val) {
-    let btn = gpioButtons[key];
-    let lab = gpioLabels[key];
-
-    if (val === 1) {
-      btn.classList.add("on");
-      lab.textContent = "Status: ON";
-      lab.style.color = "#9effae";
-    } else {
-      btn.classList.remove("on");
-      lab.textContent = "Status: OFF";
-      lab.style.color = "#d1d1d1";
-    }
-  }
+}
