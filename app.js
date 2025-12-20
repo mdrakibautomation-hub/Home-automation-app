@@ -34,7 +34,11 @@ const logoutBtn = document.getElementById("logoutBtn");
 const authMsg = document.getElementById("authMsg");
 const badge = document.getElementById("statusBadge");
 
-const gpioList = ["gpio1","gpio2","gpio3","gpio4","gpio5","gpio6","gpio7","gpio8"];
+const gpioList = [
+ "gpio1","gpio2","gpio3","gpio4",
+ "gpio5","gpio6","gpio7","gpio8",
+ "gpio9","gpio10","gpio11","gpio12"
+];
 const devicePath = "devices/esp32_1";
 
 // LOGIN
