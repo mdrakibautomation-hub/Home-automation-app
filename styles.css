@@ -10,7 +10,8 @@ body {
 }
 
 .card {
-  width: 380px;
+  width: 420px;                /* 🔥 slightly wider for 12 GPIO */
+  max-width: 95%;
   padding: 25px;
   border-radius: 18px;
   background: rgba(255,255,255,0.12);
@@ -33,6 +34,7 @@ h1 {
 .online { background: #4caf50; }
 .offline { background: #e53935; }
 
+/* ===== INPUT ===== */
 input {
   width: 92%;
   padding: 14px;
@@ -50,6 +52,7 @@ input::placeholder {
   color: rgba(255,255,255,0.35);
 }
 
+/* ===== BUTTON ===== */
 .btn {
   width: 94%;
   padding: 14px;
@@ -68,23 +71,37 @@ input::placeholder {
   background: linear-gradient(135deg,#e53935,#c62828);
 }
 
+/* ===== GPIO GRID ===== */
 .grid {
   display: grid;
-  grid-template-columns: repeat(2,1fr);
-  gap: 15px;
+  grid-template-columns: repeat(3, 1fr);  /* 🔥 3 column for 12 GPIO */
+  gap: 14px;
+  margin-top: 10px;
 }
 
+/* Auto adjust for small screens */
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ===== GPIO BUTTON ===== */
 .gpio-button {
-  padding: 16px;
+  padding: 14px;
   border-radius: 14px;
   border: none;
   cursor: pointer;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: white;
   background: linear-gradient(135deg,#1f3b73,#274b8c);
   box-shadow: 0 6px 18px rgba(0,0,0,0.35);
   transition: 0.25s ease;
+}
+
+.gpio-button:hover {
+  transform: translateY(-2px);
 }
 
 .gpio-button.on {
@@ -93,6 +110,7 @@ input::placeholder {
   transform: translateY(-3px);
 }
 
+/* ===== AUTH MESSAGE ===== */
 #authMsg {
   color: #ffb3b3;
   font-size: 14px;
