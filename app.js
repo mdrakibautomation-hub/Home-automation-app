@@ -1,94 +1,139 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+// =========================
+// Firebase Web App Config
+// =========================
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+
 import {
   getAuth,
   signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
 import {
   getDatabase,
   ref,
-  set,
   onValue,
-  get
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+  set,
+  update
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-// 🔐 Firebase Config
+
+// 🧠 CHANGE WITH YOUR OWN FIREBASE CONFIG!!
 const firebaseConfig = {
   apiKey: "AIzaSyCswT15l41hEQv79qyBKKUVPfQPCVOiTZk",
   authDomain: "home-automation-esp32-e3790.firebaseapp.com",
   databaseURL: "https://home-automation-esp32-e3790-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "home-automation-esp32-e3790",
-  appId: "1:209833223452:web:53badf29c0a1dc8818c6d9"
+  storageBucket: "home-automation-esp32-e3790.appspot.com",
+  messagingSenderId: "346907339451",
+  appId: "1:346907339451:web:xxxxxxxxxxxxxxxx"
 };
 
+
+// =======================
+// Init Firebase Services
+// =======================
 const app = initializeApp(firebaseConfig);
-const auth = getAuth();
+const auth = getAuth(app);
 const db = getDatabase(app);
 
-// UI
-const authBox = document.getElementById("authBox");
-const controlBox = document.getElementById("controlBox");
+
+// =======================
+// UI DOM Elements
+// =======================
+const emailField = document.getElementById("emailField");
+const passwordField = document.getElementById("passwordField");
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const authMsg = document.getElementById("authMsg");
-const badge = document.getElementById("statusBadge");
 
-const gpioList = ["gpio1","gpio2","gpio3","gpio4","gpio5","gpio6","gpio7","gpio8"];
-const devicePath = "devices/esp32_1";
+const authBox = document.getElementById("authBox");
+const controlBox = document.getElementById("controlBox");
+const statusBadge = document.getElementById("statusBadge");
 
+
+// =======================
 // LOGIN
-loginBtn.onclick = async () => {
-  authMsg.textContent = "";
-  try {
-    await signInWithEmailAndPassword(
-      auth,
-      emailField.value,
-      passwordField.value
-    );
-  } catch (e) {
-    authMsg.textContent = e.message;
-  }
-};
+// =======================
+loginBtn.addEventListener("click", () => {
+  let email = emailField.value.trim();
+  let pass = passwordField.value.trim();
 
-logoutBtn.onclick = () => signOut(auth);
+  signInWithEmailAndPassword(auth, email, pass)
+    .then(() => {
+      authMsg.innerText = "";
+    })
+    .catch((err) => {
+      authMsg.innerText = "⚠ Login Failed (" + err.message + ")";
+    });
+});
 
-// AUTH STATE
+
+// =======================
+// LOGOUT
+// =======================
+logoutBtn.addEventListener("click", () => {
+  signOut(auth);
+});
+
+
+// =======================
+// LOGIN STATE LISTENER
+// =======================
 onAuthStateChanged(auth, (user) => {
   if (user) {
     authBox.style.display = "none";
     controlBox.style.display = "block";
-    badge.textContent = "Online";
-    badge.className = "status-badge online";
-    startListeners();
+    statusBadge.innerText = "Online";
+    statusBadge.classList.remove("offline");
+    statusBadge.classList.add("online");
+    listenDB();
   } else {
     authBox.style.display = "block";
     controlBox.style.display = "none";
-    badge.textContent = "Offline";
-    badge.className = "status-badge offline";
+    statusBadge.innerText = "Offline";
+    statusBadge.classList.remove("online");
+    statusBadge.classList.add("offline");
   }
 });
 
-// GPIO LISTENERS
-function startListeners() {
 
-  gpioList.forEach((gpio) => {
-    const btn = document.querySelector(`[data-gpio="${gpio}"]`);
+// ===========================
+// Listen Database Live Update
+// ===========================
+function listenDB() {
+  const gpioRef = ref(db, "/devices/esp32_1");
 
-    onValue(ref(db, `${devicePath}/${gpio}`), (snap) => {
-      snap.val() === 1 ? btn.classList.add("on") : btn.classList.remove("on");
+  onValue(gpioRef, (snapshot) => {
+    const data = snapshot.val();
+    if (!data) return;
+
+    document.querySelectorAll(".gpio-button").forEach(btn => {
+      let key = btn.dataset.gpio;
+      let state = data[key] == 1 ? "ON" : "OFF";
+
+      btn.classList.toggle("on", data[key] == 1);
+      document.getElementById(key + "Status").innerText = "Status: " + state;
     });
-
-    btn.onclick = async () => {
-      const modeSnap = await get(ref(db, `${devicePath}/${gpio}_mode`));
-      const mode = modeSnap.exists() ? modeSnap.val() : "toggle";
-
-      if (mode === "toggle") {
-        const current = btn.classList.contains("on") ? 1 : 0;
-        set(ref(db, `${devicePath}/${gpio}`), current ? 0 : 1);
-      } else {
-        set(ref(db, `${devicePath}/${gpio}`), 1); // momentary
-      }
-    };
   });
 }
+
+
+// ===========================
+// Handle Manual Button Clicks
+// ===========================
+document.querySelectorAll(".gpio-button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    let key = btn.dataset.gpio;
+    let isOn = btn.classList.contains("on");
+    let newVal = isOn ? 0 : 1;
+
+    update(ref(db, "/devices/esp32_1"), {
+      [key]: newVal
+    });
+  });
+});
+
