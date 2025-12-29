@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ESP32 GPIO Controller</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ESP32 GPIO Controller</title>
 
-  <link rel="stylesheet" href="styles.css">
-  <script type="module" src="app.js"></script>
+<link rel="stylesheet" href="styles.css">
+<script type="module" src="app.js"></script>
+
 </head>
 
 <body>
@@ -16,32 +17,53 @@
   <h1>ESP32 GPIO Control</h1>
   <div id="statusBadge" class="status-badge offline">Offline</div>
 
-  <!-- LOGIN -->
+  <!-- Login UI -->
   <div id="authBox">
-    <input id="emailField" type="email" placeholder="Email">
-    <input id="passwordField" type="password" placeholder="Password">
-    <button id="loginBtn" class="btn">Login</button>
+    <input id="emailField" type="email" placeholder="Email" />
+    <input id="passwordField" type="password" placeholder="Password" />
+    <button id="loginBtn" class="btn login-btn">Login</button>
     <p id="authMsg"></p>
   </div>
 
-  <!-- CONTROL -->
+  <!-- Control UI -->
   <div id="controlBox" style="display:none;">
 
-    <div class="grid">
-      <button class="gpio-button" data-gpio="gpio1">GPIO 1</button>
-      <button class="gpio-button" data-gpio="gpio2">GPIO 2</button>
-      <button class="gpio-button" data-gpio="gpio3">GPIO 3</button>
-      <button class="gpio-button" data-gpio="gpio4">GPIO 4</button>
-      <button class="gpio-button" data-gpio="gpio5">GPIO 5</button>
-      <button class="gpio-button" data-gpio="gpio6">GPIO 6</button>
-      <button class="gpio-button" data-gpio="gpio7">GPIO 7</button>
-      <button class="gpio-button" data-gpio="gpio8">GPIO 8</button>
-    </div>
+    <!-- GPIO 1 -->
+    <button id="gpio1Btn" class="gpio-button" data-gpio="gpio1">GPIO 1</button>
+    <div id="gpio1Status" class="gpio-status">Status: OFF</div>
 
+    <!-- GPIO 2 -->
+    <button id="gpio2Btn" class="gpio-button" data-gpio="gpio2">GPIO 2</button>
+    <div id="gpio2Status" class="gpio-status">Status: OFF</div>
+
+    <!-- GPIO 3 -->
+    <button id="gpio3Btn" class="gpio-button" data-gpio="gpio3">GPIO 3</button>
+    <div id="gpio3Status" class="gpio-status">Status: OFF</div>
+
+    <!-- GPIO 4 -->
+    <button id="gpio4Btn" class="gpio-button" data-gpio="gpio4">GPIO 4</button>
+    <div id="gpio4Status" class="gpio-status">Status: OFF</div>
+
+    <!-- GPIO 5 -->
+    <button id="gpio5Btn" class="gpio-button" data-gpio="gpio5">GPIO 5</button>
+    <div id="gpio5Status" class="gpio-status">Status: OFF</div>
+
+    <!-- GPIO 6 -->
+    <button id="gpio6Btn" class="gpio-button" data-gpio="gpio6">GPIO 6</button>
+    <div id="gpio6Status" class="gpio-status">Status: OFF</div>
+
+    <!-- GPIO 7 -->
+    <button id="gpio7Btn" class="gpio-button" data-gpio="gpio7">GPIO 7</button>
+    <div id="gpio7Status" class="gpio-status">Status: OFF</div>
+
+    <!-- GPIO 8 -->
+    <button id="gpio8Btn" class="gpio-button" data-gpio="gpio8">GPIO 8</button>
+    <div id="gpio8Status" class="gpio-status">Status: OFF</div>
+
+    <!-- Logout -->
     <button id="logoutBtn" class="btn logout-btn">Logout</button>
   </div>
 
 </div>
-
 </body>
 </html>
