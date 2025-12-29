@@ -1,22 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ESP32 GPIO Controller</title>
-
-  <link rel="stylesheet" href="styles.css">
-  <script type="module" src="app.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ESP32 Smart Home</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-
 <div class="card">
 
-  <h1>ESP32 GPIO Control</h1>
-  <div id="statusBadge" class="status-badge offline">Offline</div>
+  <h1>ESP32 Smart Controller</h1>
+  <span id="statusBadge" class="status-badge offline">Offline</span>
 
-  <!-- LOGIN -->
   <div id="authBox">
     <input id="emailField" type="email" placeholder="Email">
     <input id="passwordField" type="password" placeholder="Password">
@@ -24,30 +19,43 @@
     <p id="authMsg"></p>
   </div>
 
-  <!-- CONTROL -->
   <div id="controlBox" style="display:none;">
+    <button id="logoutBtn" class="btn logout-btn">Logout</button>
 
+    <h3>GPIO Controls</h3>
     <div class="grid">
-      <button class="gpio-button" data-gpio="gpio1">GPIO 1</button>
-      <button class="gpio-button" data-gpio="gpio2">GPIO 2</button>
-      <button class="gpio-button" data-gpio="gpio3">GPIO 3</button>
-      <button class="gpio-button" data-gpio="gpio4">GPIO 4</button>
-      <button class="gpio-button" data-gpio="gpio5">GPIO 5</button>
-      <button class="gpio-button" data-gpio="gpio6">GPIO 6</button>
-      <button class="gpio-button" data-gpio="gpio7">GPIO 7</button>
-      <button class="gpio-button" data-gpio="gpio8">GPIO 8</button>
-
-      <!-- 🔥 NEW GPIO -->
-      <button class="gpio-button" data-gpio="gpio9">GPIO 9</button>
-      <button class="gpio-button" data-gpio="gpio10">GPIO 10</button>
-      <button class="gpio-button" data-gpio="gpio11">GPIO 11</button>
-      <button class="gpio-button" data-gpio="gpio12">GPIO 12</button>
+      <!-- 12 GPIO -->
+      <button class="gpio-button" data-gpio="gpio1">1</button>
+      <button class="gpio-button" data-gpio="gpio2">2</button>
+      <button class="gpio-button" data-gpio="gpio3">3</button>
+      <button class="gpio-button" data-gpio="gpio4">4</button>
+      <button class="gpio-button" data-gpio="gpio5">5</button>
+      <button class="gpio-button" data-gpio="gpio6">6</button>
+      <button class="gpio-button" data-gpio="gpio7">7</button>
+      <button class="gpio-button" data-gpio="gpio8">8</button>
+      <button class="gpio-button" data-gpio="gpio9">9</button>
+      <button class="gpio-button" data-gpio="gpio10">10</button>
+      <button class="gpio-button" data-gpio="gpio11">11</button>
+      <button class="gpio-button" data-gpio="gpio12">12</button>
     </div>
 
-    <button id="logoutBtn" class="btn logout-btn">Logout</button>
+    <h3 style="margin-top:18px;">Fan Speed Control</h3>
+    <div class="fan-box">
+      <label>Fan 1 <span id="f1v">0%</span></label>
+      <input type="range" min="0" max="100" value="0" data-fan="fan1">
+
+      <label>Fan 2 <span id="f2v">0%</span></label>
+      <input type="range" min="0" max="100" value="0" data-fan="fan2">
+
+      <label>Fan 3 <span id="f3v">0%"</span></label>
+      <input type="range" min="0" max="100" value="0" data-fan="fan3">
+
+      <label>Fan 4 <span id="f4v">0%"</span></label>
+      <input type="range" min="0" max="100" value="0" data-fan="fan4">
+    </div>
+
   </div>
-
 </div>
-
+<script type="module" src="app.js"></script>
 </body>
 </html>
