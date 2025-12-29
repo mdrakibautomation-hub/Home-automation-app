@@ -1,9 +1,9 @@
-/* ===== Global Page ===== */
+/* ===== Global ===== */
 body {
   margin: 0;
   padding: 0;
-  background: #000;  /* Pure black */
-  height: 100vh;
+  background: #000;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -11,26 +11,34 @@ body {
   color: white;
 }
 
-/* ===== Card Container ===== */
+/* ===== Card Box ===== */
 .card {
-  width: 380px;
-  max-width: 92%;
-  padding: 28px 25px;
+  width: 420px;
+  max-width: 94%;
+  padding: 28px;
   border-radius: 20px;
-  background: rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.07);
   backdrop-filter: blur(10px);
-  box-shadow: 0 0 20px rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 0 22px rgba(255,255,255,0.1);
   text-align: center;
-  border: 1px solid rgba(255,255,255,0.1);
 }
 
+/* Title */
 h1 {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   font-size: 26px;
-  font-weight: bold;
+  font-weight: 700;
 }
 
-/* ===== Status Badge ===== */
+/* Section Titles */
+h2 {
+  margin-top: 22px;
+  font-size: 20px;
+  color: #e0e0e0;
+}
+
+/* ===== Status Pill ===== */
 .status-badge {
   display: inline-block;
   padding: 6px 18px;
@@ -38,22 +46,10 @@ h1 {
   font-size: 13px;
   margin-bottom: 16px;
 }
-.online {
-  background: #00c853;
-  color: white;
-}
-.offline {
-  background: #ff1744;
-  color: white;
-}
+.online { background:#00c853; }
+.offline { background:#ff1744; }
 
-/* ===== Login Box ===== */
-#authBox {
-  width: 100%;
-  text-align: center;
-}
-
-/* ===== Inputs ===== */
+/* ===== Login ===== */
 input {
   width: 90%;
   padding: 14px;
@@ -62,13 +58,11 @@ input {
   border: none;
   outline: none;
   font-size: 16px;
-  background: rgba(255,255,255,0.15);
+  text-align:center;
+  background: rgba(255,255,255,0.12);
   color: white;
-  text-align: center;
 }
-input::placeholder {
-  color: rgba(255,255,255,0.4);
-}
+input::placeholder { color:rgba(255,255,255,0.4) }
 
 /* ===== Buttons ===== */
 .btn {
@@ -78,59 +72,50 @@ input::placeholder {
   border-radius: 12px;
   border: none;
   font-size: 17px;
-  cursor: pointer;
-  color: white;
   font-weight: 600;
+  cursor: pointer;
   background: #1a73e8;
-  box-shadow: 0 4px 12px rgba(26,115,232,0.45);
-  transition: 0.25s ease;
+  color: white;
+  transition:0.25s;
 }
-.btn:hover {
-  background: #135cc6;
-}
-.logout-btn {
-  background: #c62828;
-  box-shadow: 0 4px 12px rgba(198,40,40,0.45);
-}
-.logout-btn:hover {
-  background: #a71f1f;
-}
+.btn:hover { background:#135cc6; }
+.logout-btn { background:#c62828; }
+.logout-btn:hover { background:#a71f1f; }
 
-/* ===== GPIO Buttons ===== */
+/* ===== GPIO Controls ===== */
 .gpio-button {
   width: 100%;
-  padding: 16px;
-  margin: 18px 0 8px 0;
+  padding: 14px;
+  margin-top: 14px;
   border-radius: 14px;
-  background: #212121;
-  border: 1px solid #333;
-  cursor: pointer;
-  font-size: 19px;
-  color: white;
-  font-weight: 600;
-  transition: 0.25s ease;
+  font-size: 18px;
+  font-weight:600;
+  background:#212121;
+  cursor:pointer;
+  border:1px solid #333;
+  transition:0.25s;
 }
-.gpio-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(255,255,255,0.15);
-}
+.gpio-button:hover {transform: translateY(-2px);}
 .gpio-button.on {
-  background: #00c853;
-  border: 1px solid #00e676;
-  box-shadow: 0 6px 20px rgba(0,255,120,0.45);
+  background:#00c853;
+  border:1px solid #00e676;
+  box-shadow:0 0 20px rgba(0,255,120,0.45);
 }
 
-/* ===== GPIO Status Text ===== */
-.gpio-status {
-  font-size: 15px;
-  margin-top: -6px;
-  margin-bottom: 10px;
-  color: #bdbdbd;
+/* ===== Fan Slider ===== */
+#fanSlider {
+  width:100%;
+  margin-top:20px;
+}
+#fanLabel {
+  font-size:15px;
+  opacity:0.8;
 }
 
-/* ===== Error Text ===== */
-#authMsg {
-  margin-top: 10px;
-  color: #ff8a80;
-  font-size: 14px;
+/* Error msg */
+#authMsg { color:#ff8a80; font-size:14px; }
+
+/* Mobile fix */
+@media(max-width:450px){
+  .card{padding:20px;width:98%;}
 }
