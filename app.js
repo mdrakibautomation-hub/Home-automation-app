@@ -1,13 +1,14 @@
-// ================= FIREBASE CONFIG =================
+// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyCswT15l41hEQv79qyBKKUVPfQPCVOiTZk",
   authDomain: "home-automation-esp32-e3790.firebaseapp.com",
   databaseURL: "https://home-automation-esp32-e3790-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "home-automation-esp32-e3790",
-  storageBucket: "home-automation-esp32-e3790.appspot.com",
-  messagingSenderId: "260228184171",
-  appId: "1:260228184171:web:xxxxxxxxxxxxxxxx",
+  storageBucket: "home-automation-esp32-e3790.firebasestorage.app",
+  messagingSenderId: "209833223452",
+  appId: "1:209833223452:web:53badf29c0a1dc8818c6d9"
 };
+
 
 // Init
 firebase.initializeApp(firebaseConfig);
@@ -89,3 +90,4 @@ for (let i = 1; i <= 4; i++) {
   if (slider)
     slider.oninput = () => db.ref(`${basePath}/fan${i}_speed`).set(Number(slider.value));
 }
+
