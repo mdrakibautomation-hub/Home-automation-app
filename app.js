@@ -1,55 +1,91 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } 
-from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import { getDatabase, ref, set, onValue } 
-from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+// ================= FIREBASE CONFIG =================
+const firebaseConfig = {
+  apiKey: "AIzaSyCswT15l41hEQv79qyBKKUVPfQPCVOiTZk",
+  authDomain: "home-automation-esp32-e3790.firebaseapp.com",
+  databaseURL: "https://home-automation-esp32-e3790-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "home-automation-esp32-e3790",
+  storageBucket: "home-automation-esp32-e3790.appspot.com",
+  messagingSenderId: "260228184171",
+  appId: "1:260228184171:web:xxxxxxxxxxxxxxxx",
+};
 
-// Firebase config — SAME
-const firebaseConfig = {...};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-const db = getDatabase(app);
+// Init
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
 
-const gpioList = ["gpio1","gpio2","gpio3","gpio4","gpio5","gpio6","gpio7","gpio8","gpio9","gpio10","gpio11","gpio12"];
-const fanList = ["fan1","fan2","fan3","fan4"];
-const device = "devices/esp32_1";
+// ================= DOM ELEMENTS =================
+const loginBtn = document.getElementById("loginBtn");
+const logoutBtn = document.getElementById("logoutBtn");
+const authBox = document.getElementById("authBox");
+const controlBox = document.getElementById("controlBox");
+const statusBadge = document.getElementById("statusBadge");
 
-onAuthStateChanged(auth, user =>{
-  document.getElementById("authBox").style.display = user ? "none" : "block";
-  document.getElementById("controlBox").style.display = user ? "block" : "none";
-  document.getElementById("statusBadge").className = user ? "status-badge online" : "status-badge offline";
-  document.getElementById("statusBadge").textContent = user ? "Online" : "Offline";
-  if(user) init();
+const emailField = document.getElementById("emailField");
+const passwordField = document.getElementById("passwordField");
+const authMsg = document.getElementById("authMsg");
+
+// ================= LOGIN =================
+loginBtn.onclick = async () => {
+  const email = emailField.value.trim();
+  const pass = passwordField.value.trim();
+  authMsg.textContent = "";
+
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+    authMsg.textContent = "Login Success!";
+    authBox.style.display = "none";
+    controlBox.style.display = "block";
+  } catch (err) {
+    authMsg.textContent = "Login Failed: " + err.message;
+  }
+};
+
+// ================= LOGOUT =================
+logoutBtn.onclick = () => {
+  auth.signOut();
+  authBox.style.display = "block";
+  controlBox.style.display = "none";
+};
+
+// ================= DEVICE DB =================
+const basePath = "devices/esp32_1";
+
+function setGPIO(name, value) {
+  db.ref(`${basePath}/${name}`).set(value);
+}
+
+// Stream for UI sync
+db.ref(basePath).on("value", snap => {
+  statusBadge.textContent = "Online";
+  statusBadge.classList.remove("offline");
+  statusBadge.classList.add("online");
+
+  const data = snap.val();
+  document.querySelectorAll(".gpio-button").forEach(btn => {
+    const key = btn.dataset.gpio;
+    if (data[key] === 1) btn.classList.add("on");
+    else btn.classList.remove("on");
+  });
+
+  for (let i = 1; i <= 4; i++) {
+    const slider = document.getElementById(`fan${i}`);
+    if (slider) slider.value = data[`fan${i}_speed`] || 0;
+  }
 });
 
-loginBtn.onclick = ()=> signInWithEmailAndPassword(auth,emailField.value, passwordField.value).catch(e=>authMsg.textContent=e.message);
-logoutBtn.onclick = ()=> signOut(auth);
-
-// ===== Startup Listeners =====
-function init(){
-  // GPIO
-  gpioList.forEach(g=>{
-    const btn = document.querySelector(`[data-gpio="${g}"]`);
-    onValue(ref(db,`${device}/${g}`),(snap)=>{
-      snap.val()==1 ? btn.classList.add("on") : btn.classList.remove("on");
-    });
-    btn.onclick = ()=> set(ref(db,`${device}/${g}`), btn.classList.contains("on") ? 0 : 1);
+// ================= BUTTON CLICK =================
+document.querySelectorAll(".gpio-button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const key = btn.dataset.gpio;
+    const isOn = btn.classList.contains("on");
+    setGPIO(key, isOn ? 0 : 1);
   });
+});
 
-  // FAN PWM
-  fanList.forEach((fan,i)=>{
-    const range = document.querySelector(`input[data-fan="${fan}"]`);
-    const valLbl = document.getElementById(`f${i+1}v`);
-
-    onValue(ref(db,`${device}/${fan}`),(snap)=>{
-      let v = snap.val() || 0;
-      range.value = v;
-      valLbl.textContent = v+"%";
-    });
-
-    range.oninput = ()=> {
-      set(ref(db,`${device}/${fan}`), parseInt(range.value));
-      valLbl.textContent = range.value+"%";
-    };
-  });
+// ================= FAN SLIDERS =================
+for (let i = 1; i <= 4; i++) {
+  const slider = document.getElementById(`fan${i}`);
+  if (slider)
+    slider.oninput = () => db.ref(`${basePath}/fan${i}_speed`).set(Number(slider.value));
 }
