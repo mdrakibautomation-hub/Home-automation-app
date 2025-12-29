@@ -1,139 +1,74 @@
-// =========================
-// Firebase Web App Config
-// =========================
-import {
-  initializeApp
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+// ========== CONFIG ==========
+const ESP_URL = "http://192.168.4.1";   // Change If Needed
+const GPIO_COUNT = 8;
 
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-import {
-  getDatabase,
-  ref,
-  onValue,
-  set,
-  update
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
-
-// 🧠 CHANGE WITH YOUR OWN FIREBASE CONFIG!!
-const firebaseConfig = {
-  apiKey: "AIzaSyCswT15l41hEQv79qyBKKUVPfQPCVOiTZk",
-  authDomain: "home-automation-esp32-e3790.firebaseapp.com",
-  databaseURL: "https://home-automation-esp32-e3790-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "home-automation-esp32-e3790",
-  storageBucket: "home-automation-esp32-e3790.appspot.com",
-  messagingSenderId: "346907339451",
-  appId: "1:346907339451:web:xxxxxxxxxxxxxxxx"
-};
-
-
-// =======================
-// Init Firebase Services
-// =======================
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
-
-
-// =======================
-// UI DOM Elements
-// =======================
-const emailField = document.getElementById("emailField");
-const passwordField = document.getElementById("passwordField");
+// ========== DOM ==========
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
-const authMsg = document.getElementById("authMsg");
-
 const authBox = document.getElementById("authBox");
-const controlBox = document.getElementById("controlBox");
-const statusBadge = document.getElementById("statusBadge");
+const controlPanel = document.getElementById("controlPanel");
+const connStatus = document.getElementById("connStatus");
 
+// ========== LOGIN ==========
+loginBtn.onclick = async () => {
+  const u = user.value, p = pass.value;
+  let r = await fetch(`${ESP_URL}/login?u=${u}&p=${p}`);
+  let ok = (await r.text()).trim() === "OK";
+  if(ok){
+    authBox.style.display="none";
+    controlPanel.style.display="block";
+  } else authMsg.textContent = "Invalid Login";
+};
 
-// =======================
-// LOGIN
-// =======================
-loginBtn.addEventListener("click", () => {
-  let email = emailField.value.trim();
-  let pass = passwordField.value.trim();
-
-  signInWithEmailAndPassword(auth, email, pass)
-    .then(() => {
-      authMsg.innerText = "";
-    })
-    .catch((err) => {
-      authMsg.innerText = "⚠ Login Failed (" + err.message + ")";
-    });
-});
-
-
-// =======================
 // LOGOUT
-// =======================
-logoutBtn.addEventListener("click", () => {
-  signOut(auth);
-});
+logoutBtn.onclick = async () => {
+  await fetch(`${ESP_URL}/logout`);
+  location.reload();
+};
 
+// ========== GPIO Buttons ==========
+const gpioArea = document.getElementById("gpioArea");
+let gpioState = Array(GPIO_COUNT).fill(0);
 
-// =======================
-// LOGIN STATE LISTENER
-// =======================
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    authBox.style.display = "none";
-    controlBox.style.display = "block";
-    statusBadge.innerText = "Online";
-    statusBadge.classList.remove("offline");
-    statusBadge.classList.add("online");
-    listenDB();
-  } else {
-    authBox.style.display = "block";
-    controlBox.style.display = "none";
-    statusBadge.innerText = "Offline";
-    statusBadge.classList.remove("online");
-    statusBadge.classList.add("offline");
-  }
-});
-
-
-// ===========================
-// Listen Database Live Update
-// ===========================
-function listenDB() {
-  const gpioRef = ref(db, "/devices/esp32_1");
-
-  onValue(gpioRef, (snapshot) => {
-    const data = snapshot.val();
-    if (!data) return;
-
-    document.querySelectorAll(".gpio-button").forEach(btn => {
-      let key = btn.dataset.gpio;
-      let state = data[key] == 1 ? "ON" : "OFF";
-
-      btn.classList.toggle("on", data[key] == 1);
-      document.getElementById(key + "Status").innerText = "Status: " + state;
-    });
-  });
+for(let i=0;i<GPIO_COUNT;i++){
+  let btn = document.createElement("button");
+  btn.className="gpio-button";
+  btn.id="gpio"+i;
+  btn.textContent="GPIO " + i;
+  btn.onclick = ()=> toggleGPIO(i);
+  gpioArea.appendChild(btn);
 }
 
+async function toggleGPIO(i){
+  gpioState[i] = gpioState[i] ? 0 : 1;
+  await fetch(`${ESP_URL}/gpio?pin=${i}&v=${gpioState[i]}`);
+  updateButtons();
+}
 
-// ===========================
-// Handle Manual Button Clicks
-// ===========================
-document.querySelectorAll(".gpio-button").forEach(btn => {
-  btn.addEventListener("click", () => {
-    let key = btn.dataset.gpio;
-    let isOn = btn.classList.contains("on");
-    let newVal = isOn ? 0 : 1;
+function updateButtons(){
+  for(let i=0;i<GPIO_COUNT;i++){
+    const b=document.getElementById("gpio"+i);
+    b.classList.toggle("on", gpioState[i]===1);
+  }
+}
 
-    update(ref(db, "/devices/esp32_1"), {
-      [key]: newVal
-    });
-  });
-});
+// ========== FAN PWM ==========
+const fanSlider = document.getElementById("fanSlider");
+const fanLabel = document.getElementById("fanLabel");
 
+fanSlider.oninput = async ()=>{
+  fanLabel.textContent = `Speed: ${fanSlider.value}%`;
+  await fetch(`${ESP_URL}/fan?speed=${fanSlider.value}`);
+};
+
+// ========== AUTO ONLINE CHECK ==========
+setInterval(async()=>{
+  try{
+    let r = await fetch(`${ESP_URL}/status`);
+    connStatus.textContent="Online";
+    connStatus.className="status-badge online";
+  }catch{
+    connStatus.textContent="Offline";
+    connStatus.className="status-badge offline";
+  }
+},2500);
