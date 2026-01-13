@@ -1,67 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ESP32 GPIO Controller</title>
+    <meta charset="UTF-8">
+    <title>EEE Student Portfolio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="stylesheet" href="styles.css">
-<script type="module" src="app.js"></script>
-
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        body{
+            background:#f4f6f9;
+            color:#333;
+        }
+        header{
+            background:#0a3d62;
+            color:#fff;
+            padding:40px 20px;
+            text-align:center;
+        }
+        header h1{
+            font-size:32px;
+        }
+        header p{
+            font-size:16px;
+            margin-top:10px;
+        }
+        section{
+            padding:40px 20px;
+            max-width:1000px;
+            margin:auto;
+        }
+        h2{
+            color:#0a3d62;
+            margin-bottom:20px;
+            border-left:5px solid #0a3d62;
+            padding-left:10px;
+        }
+        .about p{
+            line-height:1.8;
+        }
+        .skills ul{
+            display:grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap:10px;
+            list-style:none;
+        }
+        .skills li{
+            background:#fff;
+            padding:12px;
+            border-radius:5px;
+            box-shadow:0 2px 5px rgba(0,0,0,0.1);
+        }
+        .projects{
+            display:grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap:20px;
+        }
+        .project-card{
+            background:#fff;
+            padding:20px;
+            border-radius:8px;
+            box-shadow:0 3px 8px rgba(0,0,0,0.1);
+        }
+        .project-card h3{
+            color:#0a3d62;
+            margin-bottom:10px;
+        }
+        .education, .contact{
+            background:#fff;
+            padding:20px;
+            border-radius:8px;
+            box-shadow:0 2px 6px rgba(0,0,0,0.1);
+        }
+        .contact a{
+            color:#0a3d62;
+            text-decoration:none;
+            display:block;
+            margin:8px 0;
+        }
+        footer{
+            background:#0a3d62;
+            color:#fff;
+            text-align:center;
+            padding:15px;
+            margin-top:40px;
+        }
+    </style>
 </head>
 <body>
 
-<div class="card">
+<header>
+    <h1>Mehedy hasn</h1>
+    <p>EEE Student | Embedded Systems | IoT | Automation</p>
+</header>
 
-  <h1>ESP32 GPIO Control</h1>
-  <div id="statusBadge" class="status-badge offline">Offline</div>
+<section class="about">
+    <h2>About Me</h2>
+    <p>
+        I am an Electrical & Electronic Engineering student from Bangladesh.
+        I am passionate about Embedded Systems, Arduino, ESP32, IoT-based
+        automation projects and Android app development.
+    </p>
+</section>
 
-  <!-- Login UI -->
-  <div id="authBox">
-    <input id="emailField" type="email" placeholder="Email" />
-    <input id="passwordField" type="password" placeholder="Password" />
-    <button id="loginBtn" class="btn login-btn">Login</button>
-    <p id="authMsg"></p>
-  </div>
+<section class="skills">
+    <h2>Skills</h2>
+    <ul>
+        <li>C / C++</li>
+        <li>Arduino Programming</li>
+        <li>ESP8266 / ESP32</li>
+        <li>IoT & Home Automation</li>
+        <li>Relay & Sensor Interfacing</li>
+        <li>SIM800L GSM Module</li>
+        <li>Proteus Simulation</li>
+        <li>Android Studio (Java)</li>
+    </ul>
+</section>
 
-  <!-- Control UI -->
-  <div id="controlBox" style="display:none;">
+<section>
+    <h2>Projects</h2>
+    <div class="projects">
+        <div class="project-card">
+            <h3>Fire Fighting Robot</h3>
+            <p>Arduino-based autonomous fire-fighting robot using flame sensors and motor driver.</p>
+        </div>
 
-    <!-- GPIO Buttons -->
-    <button id="gpio1Btn" class="gpio-button" data-gpio="gpio1">GPIO 1</button>
-    <div id="gpio1Status" class="gpio-status">Status: OFF</div>
+        <div class="project-card">
+            <h3>ESP32 Home Automation</h3>
+            <p>WiFi-based relay control system using ESP32 with Web UI and Android app.</p>
+        </div>
 
-    <button id="gpio2Btn" class="gpio-button" data-gpio="gpio2">GPIO 2</button>
-    <div id="gpio2Status" class="gpio-status">Status: OFF</div>
+        <div class="project-card">
+            <h3>GSM Alert System</h3>
+            <p>SIM800L based SMS alert system for emergency and security applications.</p>
+        </div>
 
-    <button id="gpio3Btn" class="gpio-button" data-gpio="gpio3">GPIO 3</button>
-    <div id="gpio3Status" class="gpio-status">Status: OFF</div>
+        <div class="project-card">
+            <h3>Android SQLite App</h3>
+            <p>Offline Android app with Insert, Search, Delete and PDF Export features.</p>
+        </div>
+    </div>
+</section>
 
-    <button id="gpio4Btn" class="gpio-button" data-gpio="gpio4">GPIO 4</button>
-    <div id="gpio4Status" class="gpio-status">Status: OFF</div>
+<section>
+    <h2>Education</h2>
+    <div class="education">
+        <p><strong>BSc / Diploma in Electrical & Electronic Engineering</strong></p>
+        <p>Institute Name</p>
+        <p>Running / Passing Year</p>
+    </div>
+</section>
 
-    <button id="gpio5Btn" class="gpio-button" data-gpio="gpio5">GPIO 5</button>
-    <div id="gpio5Status" class="gpio-status">Status: OFF</div>
+<section>
+    <h2>Contact</h2>
+    <div class="contact">
+        <a href="mailto:yourmail@gmail.com">📧 yourmail@gmail.com</a>
+        <a href="https://github.com/yourusername">💻 GitHub</a>
+        <a href="https://linkedin.com/in/yourusername">🔗 LinkedIn</a>
+    </div>
+</section>
 
-    <button id="gpio6Btn" class="gpio-button" data-gpio="gpio6">GPIO 6</button>
-    <div id="gpio6Status" class="gpio-status">Status: OFF</div>
-
-    <button id="gpio7Btn" class="gpio-button" data-gpio="gpio7">GPIO 7</button>
-    <div id="gpio7Status" class="gpio-status">Status: OFF</div>
-
-    <button id="gpio8Btn" class="gpio-button" data-gpio="gpio8">GPIO 8</button>
-    <div id="gpio8Status" class="gpio-status">Status: OFF</div>
-
-    <!-- Fan Control -->
-    <h3 class="fan-title">Fan Speed</h3>
-    <input type="range" id="fanSlider" min="0" max="100" value="0" class="fan-slider">
-    <p id="fanLabel" class="fan-label">Speed: 0%</p>
-
-    <!-- Logout -->
-    <button id="logoutBtn" class="btn logout-btn">Logout</button>
-  </div>
-
-</div>
+<footer>
+    <p>© 2026 Your Name | EEE Portfolio</p>
+</footer>
 
 </body>
 </html>
