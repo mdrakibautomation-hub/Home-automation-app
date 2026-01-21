@@ -1,94 +1,47 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-import {
-  getDatabase,
-  ref,
-  set,
-  onValue,
-  get
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ESP32 GPIO Controller</title>
 
-// 🔐 Firebase Config
-const firebaseConfig = {
-  apiKey: "AIzaSyCswT15l41hEQv79qyBKKUVPfQPCVOiTZk",
-  authDomain: "home-automation-esp32-e3790.firebaseapp.com",
-  databaseURL: "https://home-automation-esp32-e3790-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "home-automation-esp32-e3790",
-  appId: "1:209833223452:web:53badf29c0a1dc8818c6d9"
-};
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-const db = getDatabase(app);
+<body>
 
-// UI
-const authBox = document.getElementById("authBox");
-const controlBox = document.getElementById("controlBox");
-const loginBtn = document.getElementById("loginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const authMsg = document.getElementById("authMsg");
-const badge = document.getElementById("statusBadge");
+<div class="card">
 
-const gpioList = ["gpio1","gpio2","gpio3","gpio4","gpio5","gpio6","gpio7","gpio8"];
-const devicePath = "devices/esp32_1";
+  <h1>ESP32 GPIO Control</h1>
+  <div id="statusBadge" class="status-badge offline">Offline</div>
 
-// LOGIN
-loginBtn.onclick = async () => {
-  authMsg.textContent = "";
-  try {
-    await signInWithEmailAndPassword(
-      auth,
-      emailField.value,
-      passwordField.value
-    );
-  } catch (e) {
-    authMsg.textContent = e.message;
-  }
-};
+  <!-- LOGIN -->
+  <div id="authBox">
+    <input id="emailField" type="email" placeholder="Email">
+    <input id="passwordField" type="password" placeholder="Password">
+    <button id="loginBtn" class="btn">Login</button>
+    <p id="authMsg"></p>
+  </div>
 
-logoutBtn.onclick = () => signOut(auth);
+  <!-- CONTROL -->
+  <div id="controlBox" style="display:none;">
 
-// AUTH STATE
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    authBox.style.display = "none";
-    controlBox.style.display = "block";
-    badge.textContent = "Online";
-    badge.className = "status-badge online";
-    startListeners();
-  } else {
-    authBox.style.display = "block";
-    controlBox.style.display = "none";
-    badge.textContent = "Offline";
-    badge.className = "status-badge offline";
-  }
-});
+    <div class="grid">
+      <button class="gpio-button" data-gpio="gpio1">GPIO 1</button>
+      <button class="gpio-button" data-gpio="gpio2">GPIO 2</button>
+      <button class="gpio-button" data-gpio="gpio3">GPIO 3</button>
+      <button class="gpio-button" data-gpio="gpio4">GPIO 4</button>
+      <button class="gpio-button" data-gpio="gpio5">GPIO 5</button>
+      <button class="gpio-button" data-gpio="gpio6">GPIO 6</button>
+      <button class="gpio-button" data-gpio="gpio7">GPIO 7</button>
+      <button class="gpio-button" data-gpio="gpio8">GPIO 8</button>
+    </div>
 
-// GPIO LISTENERS
-function startListeners() {
+    <button id="logoutBtn" class="btn logout-btn">Logout</button>
+  </div>
 
-  gpioList.forEach((gpio) => {
-    const btn = document.querySelector(`[data-gpio="${gpio}"]`);
+</div>
 
-    onValue(ref(db, `${devicePath}/${gpio}`), (snap) => {
-      snap.val() === 1 ? btn.classList.add("on") : btn.classList.remove("on");
-    });
-
-    btn.onclick = async () => {
-      const modeSnap = await get(ref(db, `${devicePath}/${gpio}_mode`));
-      const mode = modeSnap.exists() ? modeSnap.val() : "toggle";
-
-      if (mode === "toggle") {
-        const current = btn.classList.contains("on") ? 1 : 0;
-        set(ref(db, `${devicePath}/${gpio}`), current ? 0 : 1);
-      } else {
-        set(ref(db, `${devicePath}/${gpio}`), 1); // momentary
-      }
-    };
-  });
-}
+</body>
+</html>
