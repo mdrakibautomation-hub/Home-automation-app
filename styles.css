@@ -1,121 +1,99 @@
-/* ===== Global ===== */
 body {
   margin: 0;
-  padding: 0;
-  background: #000;
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
+  background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);
   font-family: "Segoe UI", sans-serif;
   color: white;
 }
 
-/* ===== Card Box ===== */
 .card {
-  width: 420px;
-  max-width: 94%;
-  padding: 28px;
-  border-radius: 20px;
-  background: rgba(255,255,255,0.07);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.15);
-  box-shadow: 0 0 22px rgba(255,255,255,0.1);
+  width: 380px;
+  padding: 25px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(14px);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
   text-align: center;
 }
 
-/* Title */
 h1 {
-  margin-bottom: 8px;
-  font-size: 26px;
-  font-weight: 700;
+  margin-bottom: 10px;
 }
 
-/* Section Titles */
-h2 {
-  margin-top: 22px;
-  font-size: 20px;
-  color: #e0e0e0;
-}
-
-/* ===== Status Pill ===== */
 .status-badge {
   display: inline-block;
-  padding: 6px 18px;
-  border-radius: 40px;
+  padding: 6px 16px;
+  border-radius: 50px;
   font-size: 13px;
-  margin-bottom: 16px;
+  margin-bottom: 15px;
 }
-.online { background:#00c853; }
-.offline { background:#ff1744; }
+.online { background: #4caf50; }
+.offline { background: #e53935; }
 
-/* ===== Login ===== */
 input {
-  width: 90%;
+  width: 92%;
   padding: 14px;
   margin: 10px 0;
   border-radius: 10px;
   border: none;
   outline: none;
-  font-size: 16px;
-  text-align:center;
-  background: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.18);
   color: white;
+  font-size: 16px;
+  text-align: center;
 }
-input::placeholder { color:rgba(255,255,255,0.4) }
 
-/* ===== Buttons ===== */
+input::placeholder {
+  color: rgba(255,255,255,0.35);
+}
+
 .btn {
-  width: 92%;
+  width: 94%;
   padding: 14px;
   margin-top: 15px;
   border-radius: 12px;
   border: none;
   font-size: 17px;
-  font-weight: 600;
   cursor: pointer;
-  background: #1a73e8;
+  font-weight: 600;
   color: white;
-  transition:0.25s;
+  background: linear-gradient(135deg,#03a9f4,#0277bd);
+  box-shadow: 0 6px 18px rgba(3,169,244,0.35);
 }
-.btn:hover { background:#135cc6; }
-.logout-btn { background:#c62828; }
-.logout-btn:hover { background:#a71f1f; }
 
-/* ===== GPIO Controls ===== */
+.logout-btn {
+  background: linear-gradient(135deg,#e53935,#c62828);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 15px;
+}
+
 .gpio-button {
-  width: 100%;
-  padding: 14px;
-  margin-top: 14px;
+  padding: 16px;
   border-radius: 14px;
+  border: none;
+  cursor: pointer;
   font-size: 18px;
-  font-weight:600;
-  background:#212121;
-  cursor:pointer;
-  border:1px solid #333;
-  transition:0.25s;
+  font-weight: 600;
+  color: white;
+  background: linear-gradient(135deg,#1f3b73,#274b8c);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  transition: 0.25s ease;
 }
-.gpio-button:hover {transform: translateY(-2px);}
+
 .gpio-button.on {
-  background:#00c853;
-  border:1px solid #00e676;
-  box-shadow:0 0 20px rgba(0,255,120,0.45);
+  background: linear-gradient(135deg,#00c853,#98ee99);
+  box-shadow: 0 8px 25px rgba(0,255,120,0.45);
+  transform: translateY(-3px);
 }
 
-/* ===== Fan Slider ===== */
-#fanSlider {
-  width:100%;
-  margin-top:20px;
-}
-#fanLabel {
-  font-size:15px;
-  opacity:0.8;
-}
-
-/* Error msg */
-#authMsg { color:#ff8a80; font-size:14px; }
-
-/* Mobile fix */
-@media(max-width:450px){
-  .card{padding:20px;width:98%;}
+#authMsg {
+  color: #ffb3b3;
+  font-size: 14px;
 }
