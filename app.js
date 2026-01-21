@@ -1,74 +1,94 @@
-// ========== CONFIG ==========
-const ESP_URL = "http://192.168.4.1";   // Change If Needed
-const GPIO_COUNT = 8;
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+import {
+  getDatabase,
+  ref,
+  set,
+  onValue,
+  get
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js";
 
-// ========== DOM ==========
+// 🔐 Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyCswT15l41hEQv79qyBKKUVPfQPCVOiTZk",
+  authDomain: "home-automation-esp32-e3790.firebaseapp.com",
+  databaseURL: "https://home-automation-esp32-e3790-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "home-automation-esp32-e3790",
+  appId: "1:209833223452:web:53badf29c0a1dc8818c6d9"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getDatabase(app);
+
+// UI
+const authBox = document.getElementById("authBox");
+const controlBox = document.getElementById("controlBox");
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
-const authBox = document.getElementById("authBox");
-const controlPanel = document.getElementById("controlPanel");
-const connStatus = document.getElementById("connStatus");
+const authMsg = document.getElementById("authMsg");
+const badge = document.getElementById("statusBadge");
 
-// ========== LOGIN ==========
+const gpioList = ["gpio1","gpio2","gpio3","gpio4","gpio5","gpio6","gpio7","gpio8"];
+const devicePath = "devices/esp32_1";
+
+// LOGIN
 loginBtn.onclick = async () => {
-  const u = user.value, p = pass.value;
-  let r = await fetch(`${ESP_URL}/login?u=${u}&p=${p}`);
-  let ok = (await r.text()).trim() === "OK";
-  if(ok){
-    authBox.style.display="none";
-    controlPanel.style.display="block";
-  } else authMsg.textContent = "Invalid Login";
-};
-
-// LOGOUT
-logoutBtn.onclick = async () => {
-  await fetch(`${ESP_URL}/logout`);
-  location.reload();
-};
-
-// ========== GPIO Buttons ==========
-const gpioArea = document.getElementById("gpioArea");
-let gpioState = Array(GPIO_COUNT).fill(0);
-
-for(let i=0;i<GPIO_COUNT;i++){
-  let btn = document.createElement("button");
-  btn.className="gpio-button";
-  btn.id="gpio"+i;
-  btn.textContent="GPIO " + i;
-  btn.onclick = ()=> toggleGPIO(i);
-  gpioArea.appendChild(btn);
-}
-
-async function toggleGPIO(i){
-  gpioState[i] = gpioState[i] ? 0 : 1;
-  await fetch(`${ESP_URL}/gpio?pin=${i}&v=${gpioState[i]}`);
-  updateButtons();
-}
-
-function updateButtons(){
-  for(let i=0;i<GPIO_COUNT;i++){
-    const b=document.getElementById("gpio"+i);
-    b.classList.toggle("on", gpioState[i]===1);
+  authMsg.textContent = "";
+  try {
+    await signInWithEmailAndPassword(
+      auth,
+      emailField.value,
+      passwordField.value
+    );
+  } catch (e) {
+    authMsg.textContent = e.message;
   }
-}
-
-// ========== FAN PWM ==========
-const fanSlider = document.getElementById("fanSlider");
-const fanLabel = document.getElementById("fanLabel");
-
-fanSlider.oninput = async ()=>{
-  fanLabel.textContent = `Speed: ${fanSlider.value}%`;
-  await fetch(`${ESP_URL}/fan?speed=${fanSlider.value}`);
 };
 
-// ========== AUTO ONLINE CHECK ==========
-setInterval(async()=>{
-  try{
-    let r = await fetch(`${ESP_URL}/status`);
-    connStatus.textContent="Online";
-    connStatus.className="status-badge online";
-  }catch{
-    connStatus.textContent="Offline";
-    connStatus.className="status-badge offline";
+logoutBtn.onclick = () => signOut(auth);
+
+// AUTH STATE
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    authBox.style.display = "none";
+    controlBox.style.display = "block";
+    badge.textContent = "Online";
+    badge.className = "status-badge online";
+    startListeners();
+  } else {
+    authBox.style.display = "block";
+    controlBox.style.display = "none";
+    badge.textContent = "Offline";
+    badge.className = "status-badge offline";
   }
-},2500);
+});
+
+// GPIO LISTENERS
+function startListeners() {
+
+  gpioList.forEach((gpio) => {
+    const btn = document.querySelector(`[data-gpio="${gpio}"]`);
+
+    onValue(ref(db, `${devicePath}/${gpio}`), (snap) => {
+      snap.val() === 1 ? btn.classList.add("on") : btn.classList.remove("on");
+    });
+
+    btn.onclick = async () => {
+      const modeSnap = await get(ref(db, `${devicePath}/${gpio}_mode`));
+      const mode = modeSnap.exists() ? modeSnap.val() : "toggle";
+
+      if (mode === "toggle") {
+        const current = btn.classList.contains("on") ? 1 : 0;
+        set(ref(db, `${devicePath}/${gpio}`), current ? 0 : 1);
+      } else {
+        set(ref(db, `${devicePath}/${gpio}`), 1); // momentary
+      }
+    };
+  });
+}
